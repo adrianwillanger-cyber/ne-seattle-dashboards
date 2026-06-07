@@ -8,9 +8,6 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/date-fns@3.6.0/cdn.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
 <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -24,6 +21,10 @@
       <span id="record-count">0 properties</span>
     </div>
   </header>
+
+  <div class="sample-banner" id="sample-banner">
+    <strong>Sample data</strong> — this dashboard is loaded with a synthetic NWMLS-shaped dataset for demonstration. Drop your own export below to replace it with live numbers.
+  </div>
 
   <main class="container">
 
@@ -61,17 +62,13 @@
         <div class="zip-cards" id="zip-cards"></div>
         <div class="sold-inline" id="sold-inline">
           <div class="si-head">
-            <div class="si-title">Sold — 98115 · 98125 · 98155</div>
+            <div class="si-title">Sold price distribution</div>
             <div class="si-sub">
-              Daily snapshot. Hover any arrow for list-to-close.
-              <span class="legend"><span class="arrow up">▲</span> Over list</span>
-              <span class="legend"><span class="arrow eq">▶</span> At list</span>
-              <span class="legend"><span class="arrow down">▼</span> Below list</span>
+              Closed sales bucketed by price band. Greener bars cleared list; amber cleared at list; gray closed below list.
             </div>
           </div>
-          <div class="si-chart-wrap">
-            <canvas id="sales-chart"></canvas>
-            <div id="chart-empty" class="empty hidden">No sold properties in 98115, 98125, or 98155.</div>
+          <div class="hist-wrap" id="hist-wrap">
+            <div id="hist-empty" class="empty hidden">No sold properties in 98115, 98125, or 98155.</div>
           </div>
         </div>
       </div>

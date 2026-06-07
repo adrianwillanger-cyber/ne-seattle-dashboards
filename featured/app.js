@@ -268,112 +268,79 @@ function renderSalesChart(rows) {
     r.listPrice != null
   );
 
-  const canvas = document.getElementById('sales-chart');
-  const empty = document.getElementById('chart-empty');
+  const wrap = document.getElementById('hist-wrap');
+  const empty = document.getElementById('hist-empty');
+  if (!wrap) return;
 
-  if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
+  // Clear any prior bars but preserve the empty-state node
+  Array.from(wrap.querySelectorAll('.hist-row, .hist-legend')).forEach(n => n.remove());
 
   if (!sold.length) {
-    canvas.style.display = 'none';
-    empty.classList.remove('hidden');
+    if (empty) empty.classList.remove('hidden');
     return;
   }
-  canvas.style.display = 'block';
-  empty.classList.add('hidden');
+  if (empty) empty.classList.add('hidden');
 
-  const classifyArrow = (r) => {
+  // Decide bucket size off the data range so it always reads cleanly
+  const prices = sold.map(r => r.sellPrice).sort((a, b) => a - b);
+  const minP = prices[0];
+  const maxP = prices[prices.length - 1];
+  const span = maxP - minP;
+  // Aim for ~7 buckets; round bucket size to nearest 100k / 250k / 500k
+  const niceSteps = [100000, 250000, 500000, 1000000, 2000000];
+  const targetBuckets = 7;
+  let step = niceSteps.find(s => span / s <= targetBuckets) || 2000000;
+  const floorP = Math.floor(minP / step) * step;
+  const ceilP = Math.ceil((maxP + 1) / step) * step;
+  const buckets = [];
+  for (let lo = floorP; lo < ceilP; lo += step) {
+    buckets.push({ lo, hi: lo + step, over: 0, at: 0, under: 0, total: 0 });
+  }
+
+  sold.forEach(r => {
+    const idx = Math.min(buckets.length - 1, Math.floor((r.sellPrice - floorP) / step));
+    const b = buckets[idx];
+    if (!b) return;
     const ratio = r.sellPrice / r.listPrice;
-    if (ratio > 1.0001) return { sym: '▲', color: '#1f9d55', label: '▲ Over list' };
-    if (ratio < 0.9999) return { sym: '▼', color: '#1a1a1a', label: '▼ Below list' };
-    return { sym: '▶', color: '#d4a017', label: '▶ At list' };
-  };
-
-  // Pre-build arrow images per (symbol,color) for performance
-  const arrowCache = {};
-  const arrowImg = (sym, color) => {
-    const k = sym + color;
-    if (!arrowCache[k]) arrowCache[k] = makeArrowImage(sym, color, 18);
-    return arrowCache[k];
-  };
-
-  // Sort all solds by price for a clean horizontal arrangement
-  const sortedSold = sold.slice().sort((a, b) => a.sellPrice - b.sellPrice);
-
-  // All points sit on a single horizontal line (y = 1). X = price.
-  const data = sortedSold.map(r => ({
-    x: r.sellPrice,
-    y: 1,
-    meta: r
-  }));
-
-  const pointStyles = sortedSold.map(r => arrowImg(classifyArrow(r).sym, classifyArrow(r).color));
-
-  const ctx = canvas.getContext('2d');
-  chartInstance = new Chart(ctx, {
-    type: 'scatter',
-    data: {
-      datasets: [{
-        label: 'Sold',
-        data,
-        pointStyle: pointStyles,
-        pointRadius: 9,
-        pointHoverRadius: 11,
-        showLine: false,
-        borderColor: 'transparent',
-        backgroundColor: 'transparent'
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      interaction: { mode: 'nearest', intersect: true },
-      layout: { padding: { top: 8, right: 12, bottom: 4, left: 4 } },
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          backgroundColor: '#0b2540',
-          titleColor: '#fff',
-          bodyColor: '#e6edf7',
-          padding: 12,
-          displayColors: false,
-          callbacks: {
-            title: (items) => items[0].raw.meta.address,
-            label: (item) => {
-              const r = item.raw.meta;
-              const ratio = (r.sellPrice / r.listPrice) * 100;
-              const dateStr = r.sellingDate ? r.sellingDate.toLocaleDateString() : '—';
-              const arr = classifyArrow(r);
-              return [
-                `Zip: ${r.zip}  ·  MLS ${r.mls}`,
-                `Sold ${dateStr}  ·  DOM ${r.dom != null ? r.dom : '—'}`,
-                `List: ${fmtMoney(r.listPrice)}   Sold: ${fmtMoney(r.sellPrice)}`,
-                `List-to-Close: ${ratio.toFixed(1)}%   ${arr.label}`
-              ];
-            }
-          }
-        }
-      },
-      scales: {
-        x: {
-          type: 'linear',
-          title: { display: true, text: 'Sold Price', color: '#5b6b80', font: { family: 'Inter', size: 11 } },
-          ticks: {
-            color: '#5b6b80',
-            font: { family: 'Inter', size: 10 },
-            maxTicksLimit: 6,
-            callback: (v) => fmtMoneyShort(v)
-          },
-          grid: { color: '#eef1f6' }
-        },
-        y: {
-          min: 0,
-          max: 2,
-          display: false,
-          grid: { display: false }
-        }
-      }
-    }
+    if (ratio > 1.0001) b.over++;
+    else if (ratio < 0.9999) b.under++;
+    else b.at++;
+    b.total++;
   });
+
+  const maxCount = Math.max(...buckets.map(b => b.total), 1);
+
+  // Render bars
+  const frag = document.createDocumentFragment();
+  buckets.forEach(b => {
+    const row = document.createElement('div');
+    row.className = 'hist-row';
+    const label = `${fmtMoneyShort(b.lo)}–${fmtMoneyShort(b.hi)}`;
+    const widthPct = (b.total / maxCount) * 100;
+    const overW = b.total ? (b.over / b.total) * widthPct : 0;
+    const atW = b.total ? (b.at / b.total) * widthPct : 0;
+    const underW = b.total ? (b.under / b.total) * widthPct : 0;
+    row.innerHTML = `
+      <div class="hist-label">${label}</div>
+      <div class="hist-bar" title="${b.total} sold (${b.over} over · ${b.at} at · ${b.under} under)">
+        <div class="seg over" style="width:${overW.toFixed(2)}%"></div>
+        <div class="seg at" style="width:${atW.toFixed(2)}%"></div>
+        <div class="seg under" style="width:${underW.toFixed(2)}%"></div>
+      </div>
+      <div class="hist-count">${b.total}</div>
+    `;
+    frag.appendChild(row);
+  });
+  // Legend
+  const legend = document.createElement('div');
+  legend.className = 'hist-legend';
+  legend.innerHTML = `
+    <span><span class="swatch over"></span>Over list</span>
+    <span><span class="swatch at"></span>At list</span>
+    <span><span class="swatch under"></span>Under list</span>
+  `;
+  frag.appendChild(legend);
+  wrap.appendChild(frag);
 }
 
 // Chart.js time scale needs an adapter — use a tiny inline date adapter so we don't need a separate CDN file.
@@ -661,31 +628,34 @@ function renderInsights(allRows) {
     const fastest = cards.filter(c => c.zMedDom != null).sort((a, b) => a.zMedDom - b.zMedDom)[0];
     const reducingMost = cards.filter(c => c.zr > 0).sort((a, b) => (b.zReduced / b.zr) - (a.zReduced / a.zr))[0];
 
-    // Sentence 1: overall read, anchored to the verdict + the strongest evidence
+    // Sentence 1: a broker-voiced read, anchored to the verdict + the strongest evidence
+    const overPct = (overShare * 100).toFixed(0);
+    const redPct = (reductionShare * 100).toFixed(0);
+    const domTxt = medSoldDom != null ? `${Math.round(medSoldDom)}-day` : 'moderate';
     let s1;
     if (tempLabel === 'Seller\u2019s Market') {
-      s1 = `Across 98115 / 98125 / 98155 this read sits firmly in <b>seller territory</b> \u2014 ${(overShare * 100).toFixed(0)}% of closed sales went over list and the median sold home found a buyer in ${medSoldDom != null ? Math.round(medSoldDom) + ' days' : 'under two weeks'}.`;
+      s1 = `This is a <b>seller's tape</b>. ${overPct}% of closings cleared list and homes are pricing into offers at a ${domTxt} median \u2014 buyers who hesitate are watching escalations decide it for them.`;
     } else if (tempLabel === 'Buyer\u2019s Market') {
-      s1 = `Across the three featured zips this read tips <b>toward buyers</b> \u2014 only ${(overShare * 100).toFixed(0)}% of closings cleared list and ${(reductionShare * 100).toFixed(0)}% of standing inventory has already taken a price cut.`;
+      s1 = `Buyers have the pen here. Only ${overPct}% of closings cleared list and <b>${redPct}% of standing inventory has already taken a cut</b> \u2014 if a listing isn't moving, the market is telling the seller something specific.`;
     } else {
-      s1 = `Across 98115 / 98125 / 98155 the read is <b>balanced</b> \u2014 ${(overShare * 100).toFixed(0)}% of solds went over list against ${(reductionShare * 100).toFixed(0)}% of stock reducing, with sold homes pacing at ${medSoldDom != null ? Math.round(medSoldDom) + ' days' : 'a moderate clip'}.`;
+      s1 = `The headline reads <b>balanced</b>, but "balanced" is doing a lot of work \u2014 ${overPct}% over list, ${redPct}% reducing, ${domTxt} median pace. The market isn't one market; it's three conversations.`;
     }
 
     // Sentence 2: what's actually moving — zip-level color
     let s2;
     if (hotZips.length && coolingZips.length) {
-      s2 = `Underneath the headline it splits: ${hotZips.join(' and ')} ${hotZips.length === 1 ? 'is' : 'are'} still hot while ${coolingZips.join(' and ')} ${coolingZips.length === 1 ? 'is' : 'are'} cooling \u2014 same metro, different conversations with sellers.`;
+      s2 = `${hotZips.join(' and ')} ${hotZips.length === 1 ? 'is' : 'are'} still drawing offers while ${coolingZips.join(' and ')} ${coolingZips.length === 1 ? 'is' : 'are'} where listings are sitting \u2014 same MLS, two different pricing conversations.`;
     } else if (hotZips.length >= 2) {
-      s2 = `${hotZips.join(' and ')} are driving the pressure${fastest ? `, with ${fastest.zip} clearing the fastest at a median ${Math.round(fastest.zMedDom)} DOM` : ''} \u2014 price aggressively, expect competition.`;
+      s2 = `${hotZips.join(' and ')} are carrying the pressure${fastest ? ` (${fastest.zip} fastest at ${Math.round(fastest.zMedDom)}-day median DOM)` : ''} \u2014 prepare buyers for escalation, advise sellers to move quickly while leverage holds.`;
     } else if (hotZips.length === 1) {
-      s2 = `${hotZips[0]} is doing the heavy lifting${fastest && fastest.zip === hotZips[0] ? ` (median ${Math.round(fastest.zMedDom)} DOM on solds)` : ''}; the other two need a more careful list-price conversation.`;
+      s2 = `${hotZips[0]} is doing the heavy lifting${fastest && fastest.zip === hotZips[0] ? ` at a ${Math.round(fastest.zMedDom)}-day median` : ''}. The other two zips need list prices that respect the data, not the seller's hope.`;
     } else if (coolingZips.length) {
-      const r = reducingMost && reducingMost.zReduced ? ` ${reducingMost.zip} carries the most price cuts (${reducingMost.zReduced} of ${reducingMost.zr}).` : '';
-      s2 = `${coolingZips.join(' and ')} ${coolingZips.length === 1 ? 'is' : 'are'} where buyers have leverage right now.${r}`;
+      const r = reducingMost && reducingMost.zReduced ? ` ${reducingMost.zip} carries the most cuts (${reducingMost.zReduced} of ${reducingMost.zr} listings reduced).` : '';
+      s2 = `${coolingZips.join(' and ')} ${coolingZips.length === 1 ? 'is' : 'are'} where buyers have negotiating room right now.${r}`;
     } else if (fastest) {
-      s2 = `${fastest.zip} is the fastest of the three at a median ${Math.round(fastest.zMedDom)} DOM \u2014 the rest are moving at a closer-to-normal pace.`;
+      s2 = `${fastest.zip} is clearing fastest at a ${Math.round(fastest.zMedDom)}-day median \u2014 the rest are moving at closer-to-normal pace.`;
     } else {
-      s2 = `Not enough closed sales in this dataset to call individual zips \u2014 watch the next two hot sheets for a clearer pattern.`;
+      s2 = `Not enough closed sales in this dataset to call individual zips with confidence \u2014 the next two hot sheets will sharpen the pattern.`;
     }
 
     brEl.innerHTML = `${s1} ${s2}`;
@@ -702,12 +672,25 @@ function parseCsvText(text) {
   return parsed.data;
 }
 
+function setBanner(isLive, fileName) {
+  const b = document.getElementById('sample-banner');
+  if (!b) return;
+  if (isLive) {
+    b.classList.add('is-live');
+    b.innerHTML = `<strong>Live data</strong> — ${escHtml(fileName || 'your upload')}. Drop a different CSV to refresh, or reset to the sample below.`;
+  } else {
+    b.classList.remove('is-live');
+    b.innerHTML = `<strong>Sample data</strong> — this dashboard is loaded with a synthetic NWMLS-shaped dataset for demonstration. Drop your own export below to replace it with live numbers.`;
+  }
+}
+
 async function loadSample() {
   try {
     const res = await fetch(SAMPLE_CSV_URL);
     const text = await res.text();
     process(parseCsvText(text));
     document.getElementById('file-meta').textContent = 'Showing sample data: Realty-Toolkit-20-2.csv';
+    setBanner(false);
   } catch (e) {
     console.error(e);
     document.getElementById('file-meta').textContent = 'Failed to load sample data. Upload a CSV to begin.';
@@ -727,6 +710,7 @@ function handleFile(file) {
       process(parseCsvText(ev.target.result));
       const sizeKb = (file.size / 1024).toFixed(1);
       document.getElementById('file-meta').textContent = `Loaded: ${file.name} (${sizeKb} KB)`;
+      setBanner(true, file.name);
     } catch (err) {
       console.error(err);
       document.getElementById('file-meta').textContent = `Could not parse ${file.name}.`;
