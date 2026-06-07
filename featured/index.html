@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Featured Zip Codes — 98115 · 98125 · 98155 — Adrian Willanger</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/date-fns@3.6.0/cdn.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="hero">
+    <img src="assets/logo.jpg" alt="Daily Hot Sheet NWMLS — Detailed for Zip Codes 98125, 98115, 98155" class="hero-logo" />
+    <div class="hero-meta">
+      <span class="tag">Featured Zip Codes Report</span>
+      <span class="dot">•</span>
+      <span id="report-date">Loading data…</span>
+      <span class="dot">•</span>
+      <span id="record-count">0 properties</span>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <!-- SECTION 1: Headline Insights -->
+    <section class="card insights-card">
+      <div class="card-head">
+        <h2>Insights &amp; Analysis — Featured Zip Codes</h2>
+        <p class="subtitle">Hyperlocal intelligence for 98115, 98125, and 98155. All metrics auto-update with each upload.</p>
+      </div>
+
+      <div id="insight-kpis" class="insight-kpis"></div>
+
+      <div class="insight-grid">
+        <div class="insight-col">
+          <h3 class="insight-h">Market Temperature</h3>
+          <ul id="insight-temp" class="insight-list"></ul>
+        </div>
+        <div class="insight-col">
+          <h3 class="insight-h">Pricing Dynamics</h3>
+          <ul id="insight-price" class="insight-list"></ul>
+        </div>
+        <div class="insight-col">
+          <h3 class="insight-h">Pace &amp; Notable Activity</h3>
+          <ul id="insight-pace" class="insight-list"></ul>
+        </div>
+      </div>
+
+      <div class="zip-cards-wrap">
+        <div class="zip-cards" id="zip-cards"></div>
+        <div class="sold-inline" id="sold-inline">
+          <div class="si-head">
+            <div class="si-title">Sold — 98115 · 98125 · 98155</div>
+            <div class="si-sub">
+              Daily snapshot. Hover any arrow for list-to-close.
+              <span class="legend"><span class="arrow up">▲</span> Over list</span>
+              <span class="legend"><span class="arrow eq">▶</span> At list</span>
+              <span class="legend"><span class="arrow down">▼</span> Below list</span>
+            </div>
+          </div>
+          <div class="si-chart-wrap">
+            <canvas id="sales-chart"></canvas>
+            <div id="chart-empty" class="empty hidden">No sold properties in 98115, 98125, or 98155.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 2: Zip Code Aggregates + Detail -->
+    <section class="card">
+      <div class="card-head">
+        <h2>Zip Code Snapshot</h2>
+        <p class="subtitle">Counts and aggregates broken out by zip code.</p>
+      </div>
+
+      <div class="table-wrap">
+        <table id="zip-summary-table">
+          <thead>
+            <tr>
+              <th rowspan="2">Zip Code</th>
+              <th colspan="4" class="grp">Counts</th>
+              <th colspan="3" class="grp alt">Aggregates</th>
+            </tr>
+            <tr>
+              <th>New</th>
+              <th>Pending</th>
+              <th>Sold</th>
+              <th>Price Reductions</th>
+              <th class="alt">Avg Price</th>
+              <th class="alt">Avg $/SqFt</th>
+              <th class="alt">Avg DOM</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+    </section>
+
+    <!-- SECTION 4: Upload -->
+    <section class="card upload-card">
+      <div class="card-head">
+        <h2>Upload Hot Sheet Data</h2>
+        <p class="subtitle">Drop a NWMLS export (.csv) or spreadsheet. The dashboard updates instantly with insights tuned to your three featured zip codes.</p>
+      </div>
+      <div id="dropzone" class="dropzone">
+        <input type="file" id="file-input" accept=".csv,text/csv" hidden />
+        <div class="dz-icon">⇪</div>
+        <div class="dz-text">
+          <strong>Drag &amp; drop a CSV here</strong>
+          <span>or <button class="link-btn" id="browse-btn" type="button">browse files</button></span>
+        </div>
+        <div class="dz-meta" id="file-meta">Loading sample data…</div>
+      </div>
+      <button id="reset-btn" class="reset-btn" type="button">Reset to sample data</button>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-left">
+        <div class="footer-name">Adrian Willanger</div>
+        <div class="footer-title">Broker · Kelly Right Real Estate</div>
+        <div class="footer-tag">Seattle, WA · Hyperlocal market analysis</div>
+      </div>
+      <div class="footer-contact">
+        <a class="footer-link" href="tel:+12069097536">
+          <span class="ico" aria-hidden="true">☏</span>
+          <span>206 909-7536</span>
+        </a>
+        <a class="footer-link" href="mailto:Adrian@adrianwillanger.com">
+          <span class="ico" aria-hidden="true">✉</span>
+          <span>Adrian@adrianwillanger.com</span>
+        </a>
+      </div>
+    </div>
+    <div class="footer-bar">
+      <span>© <span id="year"></span> Adrian Willanger · Kelly Right Real Estate</span>
+      <span>Featured Zip Codes — 98115 · 98125 · 98155</span>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

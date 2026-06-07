@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Adrian Willanger — NE Seattle Dashboards</title>
+<meta name="description" content="Hyperlocal NWMLS market dashboards for 98115 · 98125 · 98155 by Adrian Willanger, Kelly Right Real Estate." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0f1620;
+    --paper: #fafaf7;
+    --muted: #5a6571;
+    --line: #e5e3dc;
+    --accent: #1d3557;
+    --copper: #b85c2e;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 960px; margin: 0 auto; padding: 64px 28px 96px; }
+  .eyebrow {
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--copper);
+    font-weight: 600;
+    margin-bottom: 18px;
+  }
+  h1 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 500;
+    font-size: clamp(36px, 5.5vw, 56px);
+    line-height: 1.05;
+    letter-spacing: -0.015em;
+    margin: 0 0 18px;
+  }
+  h1 .accent { color: var(--accent); font-style: italic; }
+  .lede {
+    font-size: 18px;
+    color: var(--muted);
+    max-width: 620px;
+    margin: 0 0 48px;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 20px;
+  }
+  .card {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 28px;
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    min-height: 240px;
+  }
+  .card:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(15, 22, 32, 0.06);
+  }
+  .card-tag {
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 600;
+    margin-bottom: 14px;
+  }
+  .card h2 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 500;
+    font-size: 26px;
+    line-height: 1.15;
+    margin: 0 0 12px;
+    letter-spacing: -0.01em;
+  }
+  .card p {
+    color: var(--muted);
+    font-size: 15px;
+    margin: 0 0 20px;
+    flex-grow: 1;
+  }
+  .card-cta {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .card:hover .card-cta { color: var(--copper); }
+  .meta {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    font-size: 14px;
+    color: var(--muted);
+    margin-top: 56px;
+    padding-top: 28px;
+    border-top: 1px solid var(--line);
+  }
+  .meta a { color: var(--ink); text-decoration: none; }
+  .meta a:hover { color: var(--copper); }
+  .meta strong { color: var(--ink); font-weight: 600; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="eyebrow">Adrian Willanger · Kelly Right Real Estate</div>
+    <h1>Hyperlocal dashboards for <span class="accent">NE Seattle</span>.</h1>
+    <p class="lede">Two NWMLS-grounded reads of the market — one daily three-zip hot sheet, one deeper look at what buyers actually want in 98125.</p>
+
+    <div class="grid">
+      <a class="card" href="featured/index.html">
+        <div class="card-tag">Daily · 98115 · 98125 · 98155</div>
+        <h2>Featured Zip Codes Report</h2>
+        <p>KPIs, market temperature, pricing dynamics, and zip-level aggregates from the day's NWMLS hot sheet. Drop a CSV to refresh.</p>
+        <div class="card-cta">Open dashboard →</div>
+      </a>
+
+      <a class="card" href="98125/index.html">
+        <div class="card-tag">Seasonal read · 98125</div>
+        <h2>98125 Market Pulse</h2>
+        <p>What recent buyers in Pinehurst, Victory Heights, Olympic Hills, Matthews Beach, Cedar Park, Meadowbrook, and Lake City actually paid for — and which features closed deals.</p>
+        <div class="card-cta">Open dashboard →</div>
+      </a>
+    </div>
+
+    <div class="meta">
+      <span><strong>Adrian Willanger</strong> · Broker · 30+ years</span>
+      <a href="tel:+12069097536">206 909-7536</a>
+      <a href="mailto:Adrian@adrianwillanger.com">Adrian@adrianwillanger.com</a>
+    </div>
+  </div>
+</body>
+</html>

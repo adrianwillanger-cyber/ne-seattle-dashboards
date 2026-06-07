@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>98125 Market Pulse · What NE Seattle Buyers Want</title>
+<meta name="description" content="An interactive look at sales trends and buyer preferences in Seattle's 98125 zip code — Pinehurst, Victory Heights, Olympic Hills, Matthews Beach, Cedar Park, Meadowbrook, Lake City." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="#top" class="brand">
+      <img src="aw-banner.jpg" alt="Adrian Willanger — Small Trends. Big Impacts. Local Expertise." class="brand-banner" />
+    </a>
+    <div class="nav-links">
+      <a href="#snapshot">Snapshot</a>
+      <a href="#neighborhoods">Neighborhoods</a>
+      <a href="#trends">Trends</a>
+      <a href="#wants">Buyer Wants</a>
+      <a href="#contact" class="cta">Talk to Adrian</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header id="top" class="hero">
+  <div class="hero-bg" aria-hidden="true"></div>
+  <div class="hero-inner">
+    <div class="kicker">NE Seattle · Sold data through June 2026</div>
+    <h1>What buyers actually want in <span class="hl">98125</span>.</h1>
+    <p class="lede">A hyperlocal read on price, pace, and preferences across Pinehurst, Victory Heights, Olympic Hills, Matthews Beach, Cedar Park, Meadowbrook, and Lake City — drawn from <strong id="hero-n">136</strong> recent closed sales.</p>
+    <div class="hero-stats">
+      <div class="hstat"><div class="hstat-v" id="hero-med">—</div><div class="hstat-l">Median sale price</div></div>
+      <div class="hstat"><div class="hstat-v" id="hero-ppsf">—</div><div class="hstat-l">$ / finished sqft</div></div>
+      <div class="hstat"><div class="hstat-v" id="hero-dom">—</div><div class="hstat-l">Median days on market</div></div>
+      <div class="hstat"><div class="hstat-v" id="hero-sl">—</div><div class="hstat-l">Sale-to-list ratio</div></div>
+    </div>
+    <a href="#snapshot" class="hero-cta">Explore the data ↓</a>
+  </div>
+</header>
+
+<!-- SNAPSHOT -->
+<section id="snapshot" class="section">
+  <div class="container">
+    <div class="section-head">
+      <div class="eyebrow">01 · The Snapshot</div>
+      <h2>How the market is behaving right now.</h2>
+      <p>136 closed single-family and townhouse sales in 98125 between January and early June 2026. Half the homes sold at or above list price, and the typical home found a buyer in nine days.</p>
+    </div>
+
+    <div class="grid-3">
+      <div class="card kpi">
+        <div class="kpi-label">Over / At / Under asking</div>
+        <div class="kpi-bar">
+          <span class="seg over" id="bar-over" style="width:33%"></span>
+          <span class="seg at"   id="bar-at"   style="width:28%"></span>
+          <span class="seg under" id="bar-under" style="width:39%"></span>
+        </div>
+        <div class="kpi-legend">
+          <span><i class="dot over"></i><b id="pct-over">—</b> over</span>
+          <span><i class="dot at"></i><b id="pct-at">—</b> at list</span>
+          <span><i class="dot under"></i><b id="pct-under">—</b> under</span>
+        </div>
+        <div class="kpi-foot">Multiple-offer pressure persists in the most competitive pockets — but pricing accurately still matters.</div>
+      </div>
+
+      <div class="card kpi">
+        <div class="kpi-label">Price range</div>
+        <div class="range-row">
+          <div><span class="rl">Min</span><div class="rv" id="r-min">—</div></div>
+          <div class="range-bar"><span id="range-fill"></span><span id="range-median"></span></div>
+          <div><span class="rl">Max</span><div class="rv" id="r-max">—</div></div>
+        </div>
+        <div class="kpi-foot">Townhouses pull the floor; remodeled view homes in Matthews Beach pull the ceiling.</div>
+      </div>
+
+      <div class="card kpi">
+        <div class="kpi-label">Cash-buyer share</div>
+        <div class="big-num" id="cash-pct">—</div>
+        <div class="kpi-foot">Conventional financing dominates at <b id="conv-pct">—</b>. FHA/VA combined make up the rest.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- NEIGHBORHOODS -->
+<section id="neighborhoods" class="section alt">
+  <div class="container">
+    <div class="section-head">
+      <div class="eyebrow">02 · Neighborhood View</div>
+      <h2>Same zip, very different micro-markets.</h2>
+      <p>Tap a neighborhood below to see how its median price, price-per-square-foot, and sample size compare to the rest of 98125.</p>
+    </div>
+
+    <div class="hood-grid" id="hood-grid"></div>
+
+    <div class="card chart-card">
+      <div class="chart-head">
+        <h3>Median $ / sqft by neighborhood</h3>
+        <span class="muted">Higher = more competition for liveable square footage</span>
+      </div>
+      <canvas id="ppsfChart" height="120"></canvas>
+    </div>
+  </div>
+</section>
+
+<!-- TRENDS -->
+<section id="trends" class="section">
+  <div class="container">
+    <div class="section-head">
+      <div class="eyebrow">03 · Market Trends</div>
+      <h2>The shape of the spring market.</h2>
+      <p>Activity surged from February through May. Median days on market compressed from 29 in January to single digits by spring — a classic Seattle seasonal acceleration.</p>
+    </div>
+
+    <div class="grid-2">
+      <div class="card chart-card">
+        <div class="chart-head">
+          <h3>Monthly median sale price</h3>
+          <span class="muted">2026, closed sales</span>
+        </div>
+        <canvas id="monthlyPriceChart" height="180"></canvas>
+      </div>
+      <div class="card chart-card">
+        <div class="chart-head">
+          <h3>Monthly median DOM</h3>
+          <span class="muted">Days on market</span>
+        </div>
+        <canvas id="monthlyDomChart" height="180"></canvas>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card chart-card">
+        <div class="chart-head">
+          <h3>Price vs. finished sqft</h3>
+          <span class="muted">Each dot is one sale · color = neighborhood</span>
+        </div>
+        <canvas id="scatterChart" height="200"></canvas>
+      </div>
+      <div class="card chart-card">
+        <div class="chart-head">
+          <h3>Sales by home era</h3>
+          <span class="muted">Year built</span>
+        </div>
+        <canvas id="eraChart" height="200"></canvas>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BUYER WANTS -->
+<section id="wants" class="section alt">
+  <div class="container">
+    <div class="section-head">
+      <div class="eyebrow">04 · What Buyers Want</div>
+      <h2>The features that closed deals.</h2>
+      <p>Pulled from interior, site, and listing-remark fields across all 136 sales. Use the toggle to see what shows up most in winning listings.</p>
+    </div>
+
+    <div class="toggle-row" role="tablist">
+      <button class="toggle active" data-tab="interior" role="tab">Interior features</button>
+      <button class="toggle" data-tab="site" role="tab">Outdoor & site</button>
+      <button class="toggle" data-tab="keywords" role="tab">Listing keywords</button>
+    </div>
+
+    <div class="card chart-card">
+      <canvas id="featuresChart" height="160"></canvas>
+    </div>
+
+    <div class="grid-3 want-tiles">
+      <div class="tile">
+        <div class="tile-icon">🏡</div>
+        <h4>Primary suite + walk-in closet</h4>
+        <p><b id="t-primary">—</b> of recent sales advertised a primary suite with attached bath, and walk-in closets show up in roughly a quarter of homes.</p>
+      </div>
+      <div class="tile">
+        <div class="tile-icon">🚆</div>
+        <h4>Light-rail proximity</h4>
+        <p><b id="t-rail">—</b> sales explicitly highlighted the new Pinehurst (130th) or 145th stations — a transit-led repositioning of NE Seattle is real.</p>
+      </div>
+      <div class="tile">
+        <div class="tile-icon">🛠️</div>
+        <h4>Already updated</h4>
+        <p><b id="t-remodel">—</b> listings emphasized "remodeled" or "updated." Move-in ready earns the offer; deferred-maintenance homes get discounts.</p>
+      </div>
+      <div class="tile">
+        <div class="tile-icon">🌿</div>
+        <h4>Real outdoor space</h4>
+        <p>Fenced yards, patios, decks, and gardens dominate site features. <b id="t-yard">—</b> sales called out a fenced yard.</p>
+      </div>
+      <div class="tile">
+        <div class="tile-icon">💻</div>
+        <h4>Office / WFH space</h4>
+        <p>Office or den language appeared in <b id="t-office">—</b> of remarks. Bonus rooms and basements that double as flex space are a clear plus.</p>
+      </div>
+      <div class="tile">
+        <div class="tile-icon">⚡</div>
+        <h4>Modern systems</h4>
+        <p>EV chargers (<b id="t-ev">—</b> sales), heat pumps / ductless (<b id="t-hp">—</b>), and double-pane windows are increasingly table stakes.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- INSIGHTS -->
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <div class="eyebrow">05 · What It Means</div>
+      <h2>Three things to take away.</h2>
+    </div>
+    <div class="insights">
+      <div class="insight">
+        <div class="insight-num">01</div>
+        <h3>Light rail rewrote the map.</h3>
+        <p>The new 130th/Pinehurst and 145th stations are visible in pricing power. Pinehurst, Victory Heights, and Olympic Hills are quietly converging with neighborhoods that historically traded above them.</p>
+      </div>
+      <div class="insight">
+        <div class="insight-num">02</div>
+        <h3>Buyers reward finished work.</h3>
+        <p>"Remodeled" or "updated" appears in 45% of listing remarks, and homes flagged "Very Good" or "Remodeled" condition cleared at the highest sale-to-list ratios. Pre-listing prep keeps paying.</p>
+      </div>
+      <div class="insight">
+        <div class="insight-num">03</div>
+        <h3>Outdoor + flex space still wins.</h3>
+        <p>Fenced yards, patios, decks, and a usable office/bonus room remain the most-cited features. Two-story-with-basement and 1-story-with-basement homes commanded the highest medians.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA / CONTACT -->
+<section id="contact" class="section cta-section">
+  <div class="container cta-inner">
+    <div>
+      <div class="eyebrow light">Considering a move in NE Seattle?</div>
+      <h2>Get a hyperlocal read on your block.</h2>
+      <p>I write the 98125 market reports you're looking at. If you're thinking about buying or selling, let's run the numbers for your exact neighborhood, price band, and timeline.</p>
+    </div>
+    <div class="cta-card">
+      <img src="aw-banner.jpg" alt="Adrian Willanger — Small Trends. Big Impacts. Local Expertise." class="cta-banner" />
+      <div class="cta-name">Adrian Willanger</div>
+      <div class="cta-title">Broker · Kelly Right Real Estate</div>
+      <div class="cta-meta">Seattle, WA · 30+ years · hyperlocal market analysis</div>
+      <div class="cta-contact">
+        <a href="tel:+12069097536" class="cta-link">
+          <span class="cta-link-icon" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.37 1.9.72 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.35 1.85.59 2.81.72A2 2 0 0 1 22 16.92z"/></svg>
+          </span>
+          206.909.7536
+        </a>
+        <a href="mailto:Adrian@AdrianWillanger.com?subject=98125%20Market%20Pulse" class="cta-link">
+          <span class="cta-link-icon" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          </span>
+          Adrian@AdrianWillanger.com
+        </a>
+      </div>
+      <a class="cta-btn" href="mailto:Adrian@AdrianWillanger.com?subject=98125%20Market%20Pulse">Request a 1:1 market read →</a>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container footer-inner">
+    <div>© <span id="yr"></span> Adrian Willanger · Kelly Right Real Estate</div>
+    <div class="muted">Source: NWMLS closed sales, ZIP 98125, Jan–Jun 2026. Information deemed reliable but not guaranteed. Not a CMA. Equal Housing Opportunity.</div>
+  </div>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
