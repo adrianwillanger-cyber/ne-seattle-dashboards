@@ -673,3 +673,13 @@ thead th.sortable-default .sort-ind { color: var(--gold); }
   .brokers-read .br-body { font-size: 17px; }
   .methodology { padding: 18px; }
 }
+
+.method-grid .m-val code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12.5px;
+  background: #f4f1ea;
+  border: 1px solid #e6dfd0;
+  padding: 1px 5px;
+  border-radius: 4px;
+  color: #6b3416;
+}
