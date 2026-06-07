@@ -12,6 +12,19 @@ const SAMPLE_CSV_URL = 'assets/sample.csv';
 let chartInstance = null;
 
 // ---------- utilities ----------
+// HTML escape helper — prevents XSS from any string interpolated into innerHTML.
+// Even though we treat sample data as synthetic and uploaded CSVs stay in the browser,
+// escaping defensively keeps the dashboard safe if a user pastes a malicious CSV.
+const escHtml = (s) => {
+  if (s == null) return '';
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+};
+
 const fmtMoney = (n) => {
   if (n == null || isNaN(n)) return '—';
   return '$' + Math.round(n).toLocaleString();
@@ -196,7 +209,7 @@ function renderAreaTable(rows) {
   }
   tbody.innerHTML = groups.map(g => `
     <tr>
-      <td><strong>${g.key}</strong></td>
+      <td><strong>${escHtml(g.key)}</strong></td>
       <td>${g.counts.new}</td>
       <td>${g.counts.pending}</td>
       <td>${g.counts.sold}</td>
@@ -218,7 +231,7 @@ function renderZipSummary(rows) {
     const g = byZip.get(z) || { counts: { new: 0, pending: 0, sold: 0, reductions: 0 }, avgPrice: null, avgPpsf: null, avgDom: null };
     return `
       <tr>
-        <td><strong>${z}</strong></td>
+        <td><strong>${escHtml(z)}</strong></td>
         <td>${g.counts.new}</td>
         <td>${g.counts.pending}</td>
         <td>${g.counts.sold}</td>
@@ -545,7 +558,7 @@ function renderInsights(allRows) {
   if (overList.length && sold.length) {
     const topOver = overList.slice().sort((a, b) => (b.sellPrice / b.listPrice) - (a.sellPrice / a.listPrice))[0];
     const pct = ((topOver.sellPrice / topOver.listPrice - 1) * 100).toFixed(1);
-    priceBullets.push(`Biggest premium: <strong>${topOver.address}</strong> (${topOver.zip}) closed <strong>${pct}%</strong> over list at ${fmtMoney(topOver.sellPrice)}.`);
+    priceBullets.push(`Biggest premium: <strong>${escHtml(topOver.address)}</strong> (${escHtml(topOver.zip)}) closed <strong>${pct}%</strong> over list at ${fmtMoney(topOver.sellPrice)}.`);
   }
   if (!priceBullets.length) priceBullets.push('No closed comps yet — pricing dynamics will populate as sold data arrives.');
   priceEl.innerHTML = priceBullets.map(b => `<li>${b}</li>`).join('');
@@ -568,14 +581,14 @@ function renderInsights(allRows) {
   if (sold.length) {
     const fastest = sold.slice().filter(r => r.dom != null).sort((a, b) => a.dom - b.dom)[0];
     if (fastest) {
-      paceBullets.push(`Quickest close: <strong>${fastest.address}</strong> (${fastest.zip}) in <strong>${fastest.dom} day${fastest.dom === 1 ? '' : 's'}</strong> at ${fmtMoney(fastest.sellPrice)}.`);
+      paceBullets.push(`Quickest close: <strong>${escHtml(fastest.address)}</strong> (${escHtml(fastest.zip)}) in <strong>${fastest.dom} day${fastest.dom === 1 ? '' : 's'}</strong> at ${fmtMoney(fastest.sellPrice)}.`);
     }
   }
   // Highest priced listing
   const priced = rows.filter(r => r.refPrice != null).sort((a, b) => b.refPrice - a.refPrice);
   if (priced.length) {
     const top = priced[0];
-    paceBullets.push(`Top-priced featured listing: <strong>${top.address}</strong> (${top.zip}) at <strong>${fmtMoney(top.refPrice)}</strong>.`);
+    paceBullets.push(`Top-priced featured listing: <strong>${escHtml(top.address)}</strong> (${escHtml(top.zip)}) at <strong>${fmtMoney(top.refPrice)}</strong>.`);
   }
   if (!paceBullets.length) paceBullets.push('No DOM data available in this dataset.');
   paceEl.innerHTML = paceBullets.map(b => `<li>${b}</li>`).join('');
@@ -586,7 +599,7 @@ function renderInsights(allRows) {
     if (!zr.length) {
       return `
         <div class="zip-card">
-          <div class="zc-head"><span class="zc-zip">${z}</span><span class="zc-tag">No Activity</span></div>
+          <div class="zc-head"><span class="zc-zip">${escHtml(z)}</span><span class="zc-tag">No Activity</span></div>
           <div class="zc-body" style="color:var(--muted);font-style:italic">No listings in this dataset.</div>
         </div>`;
     }
@@ -628,7 +641,7 @@ function renderInsights(allRows) {
       html: `
       <div class="zip-card ${cls}">
         <div class="zc-head">
-          <span class="zc-zip">${z}</span>
+          <span class="zc-zip">${escHtml(z)}</span>
           <span class="zc-tag">${tag}</span>
         </div>
         <div class="zc-body">${body}</div>
