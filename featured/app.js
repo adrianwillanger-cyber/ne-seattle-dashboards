@@ -623,7 +623,9 @@ function renderInsights(allRows) {
       { k: 'L→C', v: ratioTxt }
     ];
 
-    return `
+    return {
+      zip: z, tag, cls, zMedDom, zAvgRatio, zReduced: zReduced.length, zSold: zSold.length, zr: zr.length,
+      html: `
       <div class="zip-card ${cls}">
         <div class="zc-head">
           <span class="zc-zip">${z}</span>
@@ -633,9 +635,48 @@ function renderInsights(allRows) {
         <div class="zc-stats">
           ${stats.map(s => `<div class="zc-stat"><div class="k">${s.k}</div><div class="v">${s.v}</div></div>`).join('')}
         </div>
-      </div>`;
-  }).join('');
-  zipCardsEl.innerHTML = cards;
+      </div>`
+    };
+  });
+  zipCardsEl.innerHTML = cards.map(c => c.html).join('');
+
+  // ----- Broker's Read: 2 sentences synthesized from the same metrics -----
+  const brEl = document.getElementById('br-body');
+  if (brEl) {
+    const hotZips = cards.filter(c => c.tag === 'Hot').map(c => c.zip);
+    const coolingZips = cards.filter(c => c.tag === 'Cooling').map(c => c.zip);
+    const fastest = cards.filter(c => c.zMedDom != null).sort((a, b) => a.zMedDom - b.zMedDom)[0];
+    const reducingMost = cards.filter(c => c.zr > 0).sort((a, b) => (b.zReduced / b.zr) - (a.zReduced / a.zr))[0];
+
+    // Sentence 1: overall read, anchored to the verdict + the strongest evidence
+    let s1;
+    if (tempLabel === 'Seller\u2019s Market') {
+      s1 = `Across 98115 / 98125 / 98155 this read sits firmly in <b>seller territory</b> \u2014 ${(overShare * 100).toFixed(0)}% of closed sales went over list and the median sold home found a buyer in ${medSoldDom != null ? Math.round(medSoldDom) + ' days' : 'under two weeks'}.`;
+    } else if (tempLabel === 'Buyer\u2019s Market') {
+      s1 = `Across the three featured zips this read tips <b>toward buyers</b> \u2014 only ${(overShare * 100).toFixed(0)}% of closings cleared list and ${(reductionShare * 100).toFixed(0)}% of standing inventory has already taken a price cut.`;
+    } else {
+      s1 = `Across 98115 / 98125 / 98155 the read is <b>balanced</b> \u2014 ${(overShare * 100).toFixed(0)}% of solds went over list against ${(reductionShare * 100).toFixed(0)}% of stock reducing, with sold homes pacing at ${medSoldDom != null ? Math.round(medSoldDom) + ' days' : 'a moderate clip'}.`;
+    }
+
+    // Sentence 2: what's actually moving — zip-level color
+    let s2;
+    if (hotZips.length && coolingZips.length) {
+      s2 = `Underneath the headline it splits: ${hotZips.join(' and ')} ${hotZips.length === 1 ? 'is' : 'are'} still hot while ${coolingZips.join(' and ')} ${coolingZips.length === 1 ? 'is' : 'are'} cooling \u2014 same metro, different conversations with sellers.`;
+    } else if (hotZips.length >= 2) {
+      s2 = `${hotZips.join(' and ')} are driving the pressure${fastest ? `, with ${fastest.zip} clearing the fastest at a median ${Math.round(fastest.zMedDom)} DOM` : ''} \u2014 price aggressively, expect competition.`;
+    } else if (hotZips.length === 1) {
+      s2 = `${hotZips[0]} is doing the heavy lifting${fastest && fastest.zip === hotZips[0] ? ` (median ${Math.round(fastest.zMedDom)} DOM on solds)` : ''}; the other two need a more careful list-price conversation.`;
+    } else if (coolingZips.length) {
+      const r = reducingMost && reducingMost.zReduced ? ` ${reducingMost.zip} carries the most price cuts (${reducingMost.zReduced} of ${reducingMost.zr}).` : '';
+      s2 = `${coolingZips.join(' and ')} ${coolingZips.length === 1 ? 'is' : 'are'} where buyers have leverage right now.${r}`;
+    } else if (fastest) {
+      s2 = `${fastest.zip} is the fastest of the three at a median ${Math.round(fastest.zMedDom)} DOM \u2014 the rest are moving at a closer-to-normal pace.`;
+    } else {
+      s2 = `Not enough closed sales in this dataset to call individual zips \u2014 watch the next two hot sheets for a clearer pattern.`;
+    }
+
+    brEl.innerHTML = `${s1} ${s2}`;
+  }
 }
 
 function parseCsvText(text) {

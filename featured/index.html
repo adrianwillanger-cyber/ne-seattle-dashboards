@@ -36,6 +36,12 @@
 
       <div id="insight-kpis" class="insight-kpis"></div>
 
+      <aside id="brokers-read" class="brokers-read" aria-label="Broker&rsquo;s Read">
+        <div class="br-label">Broker&rsquo;s Read</div>
+        <p class="br-body" id="br-body">Drop a hot sheet to see today&rsquo;s read.</p>
+        <div class="br-byline">Adrian Willanger · 30+ years brokering NE Seattle</div>
+      </aside>
+
       <div class="insight-grid">
         <div class="insight-col">
           <h3 class="insight-h">Market Temperature</h3>
@@ -100,6 +106,28 @@
         </table>
       </div>
 
+    </section>
+
+    <!-- METHODOLOGY -->
+    <section class="methodology" aria-label="Methodology">
+      <div class="method-grid">
+        <div>
+          <div class="m-label">Source</div>
+          <div class="m-val">NWMLS daily hot-sheet export, filtered to 98115 / 98125 / 98155.</div>
+        </div>
+        <div>
+          <div class="m-label">How verdicts are derived</div>
+          <div class="m-val"><b>Seller&rsquo;s Market</b>: ≥ 50% of sold over list <em>and</em> median sold DOM ≤ 14. <b>Buyer&rsquo;s Market</b>: ≤ 25% over list <em>and</em> ≥ 30% of stock reduced. Otherwise <b>Balanced</b>.</div>
+        </div>
+        <div>
+          <div class="m-label">Stack</div>
+          <div class="m-val">NWMLS export → n8n pipeline → static dashboard (Chart.js, PapaParse). Auto-refresh on each upload.</div>
+        </div>
+        <div>
+          <div class="m-label">Disclosure</div>
+          <div class="m-val">Information deemed reliable but not guaranteed. Not a CMA. Equal Housing Opportunity.</div>
+        </div>
+      </div>
     </section>
 
     <!-- SECTION 4: Upload -->
